@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VRC日本酒開栓会 | メタバース上の日本酒同時開栓会</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;400;700&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dark: #8b6914;
+      --bg-dark: #0d0d10;
+      --bg-mid: #13131a;
+      --bg-card: #1a1a25;
+      --text-main: #f0ede6;
+      --text-sub: #a89f90;
+      --accent-teal: #2a7d7d;
+      --border: rgba(201, 168, 76, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 300;
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: linear-gradient(to bottom, rgba(13,13,16,0.95) 0%, transparent 100%);
+      backdrop-filter: blur(4px);
+      transition: all 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(13,13,16,0.97);
+      padding: 14px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+    .nav-logo img {
+      width: 38px;
+      height: 38px;
+    }
+    .nav-logo-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+    }
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.82rem;
+      letter-spacing: 0.12em;
+      transition: color 0.25s;
+    }
+    .nav-links a:hover { color: var(--gold-light); }
+    .nav-cta {
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold) !important;
+      padding: 8px 22px;
+      border-radius: 2px;
+      font-size: 0.8rem !important;
+      letter-spacing: 0.1em;
+      transition: all 0.25s !important;
+    }
+    .nav-cta:hover {
+      background: var(--gold) !important;
+      color: var(--bg-dark) !important;
+    }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(13,13,16,0.70) 0%, rgba(13,13,16,0.50) 40%, rgba(13,13,16,0.82) 100%),
+        radial-gradient(ellipse 80% 60% at 50% 40%, rgba(42,125,125,0.12) 0%, transparent 60%);
+    }
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      background-image: url('hero-bg.jpg');
+      background-size: cover;
+      background-position: center 30%;
+      z-index: -1;
+    }
+    .hero-circle {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(201,168,76,0.08);
+      pointer-events: none;
+    }
+    .hero-circle:nth-child(1) { width: 600px; height: 600px; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+    .hero-circle:nth-child(2) { width: 900px; height: 900px; top: 50%; left: 50%; transform: translate(-50%,-50%); border-color: rgba(201,168,76,0.04); }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      z-index: 2;
+      padding: 0 20px;
+    }
+    .hero-label {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.35em;
+      color: var(--gold);
+      border: 1px solid var(--border);
+      padding: 6px 20px;
+      margin-bottom: 36px;
+    }
+    .hero-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(2.6rem, 7vw, 5.5rem);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      line-height: 1.15;
+      color: var(--text-main);
+      margin-bottom: 28px;
+    }
+    .hero-title span { color: var(--gold); }
+    .hero-sub {
+      font-size: clamp(0.85rem, 1.8vw, 1.05rem);
+      color: var(--text-sub);
+      letter-spacing: 0.18em;
+      margin-bottom: 52px;
+    }
+    .hero-buttons {
+      display: flex;
+      gap: 18px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-primary {
+      background: var(--gold);
+      color: var(--bg-dark);
+      padding: 14px 40px;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      font-family: 'Noto Sans JP', sans-serif;
+      font-weight: 500;
+      transition: all 0.28s;
+      display: inline-block;
+    }
+    .btn-primary:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(201,168,76,0.35);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--text-main);
+      padding: 13px 40px;
+      font-size: 0.85rem;
+      letter-spacing: 0.14em;
+      border: 1px solid rgba(240,237,230,0.3);
+      cursor: pointer;
+      text-decoration: none;
+      font-family: 'Noto Sans JP', sans-serif;
+      transition: all 0.28s;
+      display: inline-block;
+    }
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+    .scroll-indicator {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 2;
+      opacity: 0.5;
+    }
+    .scroll-indicator span {
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--text-sub);
+    }
+    .scroll-line {
+      width: 1px;
+      height: 50px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ─── SECTIONS ─── */
+    section { padding: 100px 0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 40px; }
+    .section-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .section-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.7rem, 3vw, 2.4rem);
+      font-weight: 300;
+      letter-spacing: 0.1em;
+      line-height: 1.4;
+      margin-bottom: 20px;
+    }
+    .section-divider {
+      width: 50px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 36px;
+    }
+    .gold-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--gold), transparent);
+      opacity: 0.3;
+    }
+
+    /* ─── ABOUT ─── */
+    #about { background: var(--bg-mid); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+    .about-text p {
+      color: var(--text-sub);
+      font-size: 0.92rem;
+      margin-bottom: 20px;
+      line-height: 2;
+    }
+    .about-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      padding: 32px 28px;
+      border-top: 2px solid var(--gold);
+    }
+    .stat-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 2.4rem;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      letter-spacing: 0.1em;
+    }
+
+    /* ─── FLOW ─── */
+    #flow { background: var(--bg-dark); }
+    .flow-header { text-align: center; margin-bottom: 70px; }
+    .flow-header .section-divider { margin: 0 auto; }
+    .flow-steps {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+    .flow-step {
+      background: var(--bg-card);
+      padding: 36px 24px;
+      text-align: center;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    .flow-step:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(201,168,76,0.15);
+      z-index: 1;
+      position: relative;
+    }
+    .step-num {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 2.8rem;
+      color: rgba(201,168,76,0.15);
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 16px;
+    }
+    .step-icon { font-size: 1.8rem; margin-bottom: 16px; display: block; }
+    .step-title {
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      color: var(--gold-light);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+    .step-desc {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      line-height: 1.9;
+    }
+
+    /* ─── SAKE ─── */
+    #sake { background: var(--bg-mid); }
+    .sake-header { margin-bottom: 50px; }
+    .sake-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .sake-card {
+      background: var(--bg-card);
+      padding: 36px 32px;
+      border-left: 2px solid transparent;
+      transition: all 0.28s;
+    }
+    .sake-card:hover {
+      border-left-color: var(--gold);
+      background: #20202e;
+    }
+    .sake-num {
+      font-size: 0.68rem;
+      color: var(--gold);
+      letter-spacing: 0.3em;
+      margin-bottom: 14px;
+    }
+    .sake-name {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.05rem;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+    .sake-type {
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      letter-spacing: 0.08em;
+    }
+    .sake-more {
+      background: rgba(201,168,76,0.04);
+      border-left: 2px solid rgba(201,168,76,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+    }
+    .sake-more-inner { text-align: center; }
+    .sake-more-icon { color: var(--gold); font-size: 1.8rem; margin-bottom: 10px; }
+    .sake-more-text { font-size: 0.78rem; color: var(--text-sub); }
+
+    /* ─── GALLERY ─── */
+    #gallery { background: var(--bg-dark); }
+    .gallery-header { margin-bottom: 50px; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: auto auto;
+      gap: 4px;
+    }
+    .gallery-item {
+      position: relative;
+      overflow: hidden;
+      background: var(--bg-card);
+      aspect-ratio: 4/3;
+      cursor: pointer;
+    }
+    .gallery-item:first-child {
+      grid-column: span 2;
+      aspect-ratio: 16/9;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease, filter 0.4s ease;
+      filter: brightness(0.85) saturate(0.9);
+    }
+    .gallery-item:hover img {
+      transform: scale(1.04);
+      filter: brightness(1) saturate(1.05);
+    }
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(13,13,16,0.7) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    /* placeholder when no image */
+    .gallery-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-card);
+      border: 1px dashed rgba(201,168,76,0.2);
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      gap: 10px;
+      letter-spacing: 0.08em;
+    }
+    .gallery-placeholder-icon { font-size: 2rem; opacity: 0.4; }
+
+    @media (max-width: 700px) {
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-item:first-child { grid-column: span 2; }
+    }
+
+    /* ─── JOIN ─── */
+    #join { background: var(--bg-mid); }
+    .join-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .join-text p {
+      color: var(--text-sub);
+      font-size: 0.9rem;
+      line-height: 2.1;
+      margin-bottom: 16px;
+    }
+    .join-info {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 40px;
+    }
+    .join-info-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      margin-bottom: 28px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.83rem;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--text-sub); letter-spacing: 0.08em; }
+    .info-val { color: var(--text-main); }
+    .join-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #0a0a0d;
+      border-top: 1px solid var(--border);
+      padding: 60px 0 40px;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+    .footer-logo {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.2rem;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      margin-bottom: 14px;
+    }
+    .footer-tagline {
+      font-size: 0.78rem;
+      color: var(--text-sub);
+      letter-spacing: 0.1em;
+      line-height: 1.9;
+      max-width: 240px;
+    }
+    .footer-links { display: flex; gap: 60px; }
+    .footer-col h4 {
+      font-size: 0.72rem;
+      letter-spacing: 0.3em;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul li a {
+      font-size: 0.8rem;
+      color: var(--text-sub);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--gold-light); }
+    .footer-socials { display: flex; gap: 14px; }
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      color: var(--text-sub);
+      font-size: 0.75rem;
+      transition: all 0.25s;
+    }
+    .social-icon:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,168,76,0.08);
+    }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.73rem;
+      color: var(--text-sub);
+    }
+
+    /* ─── ANIMATIONS ─── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 16px 24px; }
+      nav.scrolled { padding: 12px 24px; }
+      .nav-links { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 50px; }
+      .flow-steps { grid-template-columns: 1fr 1fr; }
+      .sake-grid { grid-template-columns: 1fr 1fr; }
+      .join-grid { grid-template-columns: 1fr; }
+      .footer-inner { flex-direction: column; }
+      .footer-links { flex-direction: column; gap: 30px; }
+      .footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    }
+    @media (max-width: 600px) {
+      section { padding: 70px 0; }
+      .container { padding: 0 24px; }
+      .flow-steps { grid-template-columns: 1fr; }
+      .sake-grid { grid-template-columns: 1fr; }
+      .hero-buttons { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#hero" class="nav-logo">
+      <img src="logo.svg" alt="VRC日本酒開栓会 ロゴ" />
+      <span class="nav-logo-text">VRC日本酒開栓会</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#about">について</a></li>
+      <li><a href="#flow">参加の流れ</a></li>
+      <li><a href="#sake">過去のお酒</a></li>
+      <li><a href="#gallery">ギャラリー</a></li>
+      <li><a href="#join">参加する</a></li>
+      <li><a href="https://discord.gg/erh6QqSN6X" class="nav-cta" target="_blank">Discord 参加</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg-img"></div>
+    <div class="hero-bg"></div>
+    <div class="hero-circle"></div>
+    <div class="hero-circle"></div>
+    <div class="hero-content">
+      <div class="hero-label">VRChat × 日本酒</div>
+      <h1 class="hero-title">VRC日本酒<span>開栓会</span></h1>
+      <p class="hero-sub">メタバース上で行う 日本酒同時開栓会</p>
+      <div class="hero-buttons">
+        <a href="https://discord.gg/erh6QqSN6X" class="btn-primary" target="_blank">Discord に参加する</a>
+        <a href="#about" class="btn-secondary">詳しく見る</a>
+      </div>
+    </div>
+    <div class="scroll-indicator">
+      <span>SCROLL</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-text fade-up">
+          <span class="section-label">ABOUT</span>
+          <h2 class="section-title">まだ知らないお酒を<br>全国のユーザーと同時に</h2>
+          <div class="section-divider"></div>
+          <p>VRC日本酒開栓会は、メタバースプラットフォームVRChatの中で、毎月末に開催されるオンライン日本酒イベントです。</p>
+          <p>主催者が選んだ日本酒を参加者がそれぞれ購入し、同じ時間に一緒に開栓・試飲します。場所を問わず、日本全国のユーザーと同じ一杯を共有できるのがこのイベントの醍醐味です。</p>
+          <p>お酒のほか、肴に関するイベントも並行して開催。VRChatならではの自由な空間で、日本酒を深く楽しめるコミュニティです。</p>
+        </div>
+        <div class="about-stats fade-up">
+          <div class="stat-card">
+            <div class="stat-num">毎月</div>
+            <div class="stat-label">月末に開催</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">22:00</div>
+            <div class="stat-label">開始時間（JST）</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">VRC</div>
+            <div class="stat-label">VRChat上で開催</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-num">全国</div>
+            <div class="stat-label">参加者と同時に</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- FLOW -->
+  <section id="flow">
+    <div class="container">
+      <div class="flow-header fade-up">
+        <span class="section-label">HOW TO JOIN</span>
+        <h2 class="section-title">開栓会の流れ</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="flow-steps">
+        <div class="flow-step fade-up">
+          <div class="step-num">01</div>
+          <span class="step-icon">🎮</span>
+          <div class="step-title">アカウント作成 &amp; Discord 参加</div>
+          <p class="step-desc">VRChatアカウントを作成し、Discordサーバーに参加。自己紹介チャンネルで挨拶しましょう。</p>
+        </div>
+        <div class="flow-step fade-up">
+          <div class="step-num">02</div>
+          <span class="step-icon">📅</span>
+          <div class="step-title">Discord内で日程調整</div>
+          <p class="step-desc">Discordサーバー内のチャンネルで、参加可能な日程を共有します。</p>
+        </div>
+        <div class="flow-step fade-up">
+          <div class="step-num">03</div>
+          <span class="step-icon">🍶</span>
+          <div class="step-title">今月のお酒が発表</div>
+          <p class="step-desc">今月選ばれた日本酒と購入できるオンラインショップが告知されます。</p>
+        </div>
+        <div class="flow-step fade-up">
+          <div class="step-num">04</div>
+          <span class="step-icon">📣</span>
+          <div class="step-title">開催日決定</div>
+          <p class="step-desc">Discord内での日程調整の結果をもとに、最終的な開催日が決定・告知されます。</p>
+        </div>
+        <div class="flow-step fade-up">
+          <div class="step-num">05</div>
+          <span class="step-icon">🥂</span>
+          <div class="step-title">当日：乾杯 &amp; 解散</div>
+          <p class="step-desc">当日は記念撮影を行い、その後は自由解散。全国の仲間と同じお酒を楽しもう！</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- PAST SAKE -->
+  <section id="sake">
+    <div class="container">
+      <div class="sake-header fade-up">
+        <span class="section-label">PAST SAKE</span>
+        <h2 class="section-title">過去に楽しんだお酒</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="sake-grid">
+        <div class="sake-card fade-up">
+          <div class="sake-num">VOL. 01</div>
+          <div class="sake-name">荷札酒 黄水仙<br>純米大吟醸</div>
+          <div class="sake-type">純米大吟醸 / 加茂錦酒造</div>
+        </div>
+        <div class="sake-card fade-up">
+          <div class="sake-num">VOL. 02</div>
+          <div class="sake-name">伯楽星<br>純米吟醸</div>
+          <div class="sake-type">純米吟醸 / 新澤醸造店</div>
+        </div>
+        <div class="sake-card fade-up">
+          <div class="sake-num">VOL. 03</div>
+          <div class="sake-name">産土 山田錦<br>二農醸</div>
+          <div class="sake-type">純米 / 花の香酒造</div>
+        </div>
+        <div class="sake-card fade-up">
+          <div class="sake-num">VOL. 04</div>
+          <div class="sake-name">金雀 純米大吟醸<br>特別限定醸造</div>
+          <div class="sake-type">純米大吟醸 / 堀江酒場</div>
+        </div>
+        <div class="sake-card fade-up">
+          <div class="sake-num">VOL. 05</div>
+          <div class="sake-name">玄宰<br>特上</div>
+          <div class="sake-type">特別純米 / 会津若松</div>
+        </div>
+        <div class="sake-card sake-more fade-up">
+          <div class="sake-more-inner">
+            <div class="sake-more-icon">＋</div>
+            <div class="sake-more-text">続々更新中...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="container">
+      <div class="gallery-header fade-up">
+        <span class="section-label">GALLERY</span>
+        <h2 class="section-title">イベントの様子</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="gallery-grid">
+        <!-- 画像1（メイン・横長）: 集合写真 -->
+        <div class="gallery-item fade-up">
+          <img src="gallery-01.jpg" alt="VRC日本酒開栓会 参加者集合写真" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <!-- 画像2: 3人ショット -->
+        <div class="gallery-item fade-up">
+          <img src="gallery-02.jpg" alt="VRC日本酒開栓会 イベントの様子" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <!-- 画像3: 入場シーン -->
+        <div class="gallery-item fade-up">
+          <img src="gallery-03.jpg" alt="VRC日本酒開栓会 会場の様子" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <!-- 画像4: 酒瓶陳列 -->
+        <div class="gallery-item fade-up">
+          <img src="gallery-04.jpg" alt="VRC日本酒開栓会 お酒の紹介" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+        <!-- 画像5: カウンター -->
+        <div class="gallery-item fade-up">
+          <img src="gallery-05.jpg" alt="VRC日本酒開栓会 会場雰囲気" loading="lazy" />
+          <div class="gallery-overlay"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="gold-line"></div>
+
+  <!-- JOIN -->
+  <section id="join">
+    <div class="container">
+      <div class="join-grid">
+        <div class="join-text fade-up">
+          <span class="section-label">JOIN US</span>
+          <h2 class="section-title">参加するには</h2>
+          <div class="section-divider"></div>
+          <p>VRChatアカウントがあれば、どなたでも参加できます。まずはDiscordサーバーに参加し、自己紹介チャンネルで挨拶しましょう。</p>
+          <p>お酒は各自で事前に購入していただく必要があります。開催1〜2週間前には今月のお酒と購入先が告知されますので、ご安心ください。</p>
+          <p>VRChatのアカウント作成については、各種Webサイトをご参照ください。</p>
+          <div class="join-buttons">
+            <a href="https://discord.gg/erh6QqSN6X" class="btn-primary" target="_blank">Discordサーバーに参加する</a>
+            <a href="https://hello.vrchat.com/" class="btn-secondary" target="_blank">VRChatについて</a>
+          </div>
+        </div>
+        <div class="join-info fade-up">
+          <div class="join-info-title">📌 イベント基本情報</div>
+          <div class="info-row">
+            <span class="info-label">開催頻度</span>
+            <span class="info-val">毎月末（月1回）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">開始時間</span>
+            <span class="info-val">22:00〜（JST）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">開催場所</span>
+            <span class="info-val">VRChat内</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">参加条件</span>
+            <span class="info-val">VRChatアカウント</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">費用</span>
+            <span class="info-val">お酒の購入費（実費）</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">連絡手段</span>
+            <span class="info-val">Discord</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <div class="footer-inner">
+        <div>
+          <div class="footer-logo">VRC日本酒開栓会</div>
+          <p class="footer-tagline">メタバース上で行う<br>日本酒同時開栓会<br><br>presented by Virtual Connect</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-col">
+            <h4>MENU</h4>
+            <ul>
+              <li><a href="#about">開栓会について</a></li>
+              <li><a href="#flow">参加の流れ</a></li>
+              <li><a href="#sake">過去のお酒</a></li>
+              <li><a href="#gallery">ギャラリー</a></li>
+              <li><a href="#join">参加する</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>LINKS</h4>
+            <ul>
+              <li><a href="https://discord.gg/erh6QqSN6X" target="_blank">Discord</a></li>
+              <li><a href="https://x.com/uraurh" target="_blank">X (Twitter)</a></li>
+              <li><a href="https://hello.vrchat.com/" target="_blank">VRChat</a></li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:0.72rem; letter-spacing:0.3em; color:var(--gold); margin-bottom:20px;">FOLLOW</h4>
+          <div class="footer-socials">
+            <a href="https://discord.gg/erh6QqSN6X" class="social-icon" target="_blank" title="Discord">DC</a>
+            <a href="https://x.com/uraurh" class="social-icon" target="_blank" title="X">𝕏</a>
+            <a href="https://hello.vrchat.com/" class="social-icon" target="_blank" title="VRChat">VRC</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2025 VRC日本酒開栓会 / Virtual Connect</span>
+        <span>Powered by VRChat</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) {
+          setTimeout(() => e.target.classList.add('visible'), i * 80);
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
