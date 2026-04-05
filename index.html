@@ -113,7 +113,7 @@
     .hero-bg-img {
       position: absolute;
       inset: 0;
-      background-image: url('hero-bg.jpg');
+      background-image: url('images/hero-bg.jpg');
       background-size: cover;
       background-position: center 30%;
       z-index: -1;
@@ -600,7 +600,7 @@
   <!-- NAV -->
   <nav id="nav">
     <a href="#hero" class="nav-logo">
-      <img src="logo.svg" alt="VRC日本酒開栓会 ロゴ" />
+      <img src="images/logo.svg" alt="VRC日本酒開栓会 ロゴ" />
       <span class="nav-logo-text">VRC日本酒開栓会</span>
     </a>
     <ul class="nav-links">
@@ -725,38 +725,8 @@
         <h2 class="section-title">過去に楽しんだお酒</h2>
         <div class="section-divider"></div>
       </div>
-      <div class="sake-grid">
-        <div class="sake-card fade-up">
-          <div class="sake-num">VOL. 01</div>
-          <div class="sake-name">荷札酒 黄水仙<br>純米大吟醸</div>
-          <div class="sake-type">純米大吟醸 / 加茂錦酒造</div>
-        </div>
-        <div class="sake-card fade-up">
-          <div class="sake-num">VOL. 02</div>
-          <div class="sake-name">伯楽星<br>純米吟醸</div>
-          <div class="sake-type">純米吟醸 / 新澤醸造店</div>
-        </div>
-        <div class="sake-card fade-up">
-          <div class="sake-num">VOL. 03</div>
-          <div class="sake-name">産土 山田錦<br>二農醸</div>
-          <div class="sake-type">純米 / 花の香酒造</div>
-        </div>
-        <div class="sake-card fade-up">
-          <div class="sake-num">VOL. 04</div>
-          <div class="sake-name">金雀 純米大吟醸<br>特別限定醸造</div>
-          <div class="sake-type">純米大吟醸 / 堀江酒場</div>
-        </div>
-        <div class="sake-card fade-up">
-          <div class="sake-num">VOL. 05</div>
-          <div class="sake-name">玄宰<br>特上</div>
-          <div class="sake-type">特別純米 / 会津若松</div>
-        </div>
-        <div class="sake-card sake-more fade-up">
-          <div class="sake-more-inner">
-            <div class="sake-more-icon">＋</div>
-            <div class="sake-more-text">続々更新中...</div>
-          </div>
-        </div>
+      <div class="sake-grid" id="sake-grid">
+        <!-- Rendered by JS from admin/content.json -->
       </div>
     </div>
   </section>
@@ -774,27 +744,27 @@
       <div class="gallery-grid">
         <!-- 画像1（メイン・横長）: 集合写真 -->
         <div class="gallery-item fade-up">
-          <img src="gallery-01.jpg" alt="VRC日本酒開栓会 参加者集合写真" loading="lazy" />
+          <img src="images/gallery-01.jpg" alt="VRC日本酒開栓会 参加者集合写真" loading="lazy" />
           <div class="gallery-overlay"></div>
         </div>
         <!-- 画像2: 3人ショット -->
         <div class="gallery-item fade-up">
-          <img src="gallery-02.jpg" alt="VRC日本酒開栓会 イベントの様子" loading="lazy" />
+          <img src="images/gallery-02.jpg" alt="VRC日本酒開栓会 イベントの様子" loading="lazy" />
           <div class="gallery-overlay"></div>
         </div>
         <!-- 画像3: 入場シーン -->
         <div class="gallery-item fade-up">
-          <img src="gallery-03.jpg" alt="VRC日本酒開栓会 会場の様子" loading="lazy" />
+          <img src="images/gallery-03.jpg" alt="VRC日本酒開栓会 会場の様子" loading="lazy" />
           <div class="gallery-overlay"></div>
         </div>
         <!-- 画像4: 酒瓶陳列 -->
         <div class="gallery-item fade-up">
-          <img src="gallery-04.jpg" alt="VRC日本酒開栓会 お酒の紹介" loading="lazy" />
+          <img src="images/gallery-04.jpg" alt="VRC日本酒開栓会 お酒の紹介" loading="lazy" />
           <div class="gallery-overlay"></div>
         </div>
         <!-- 画像5: カウンター -->
         <div class="gallery-item fade-up">
-          <img src="gallery-05.jpg" alt="VRC日本酒開栓会 会場雰囲気" loading="lazy" />
+          <img src="images/gallery-05.jpg" alt="VRC日本酒開栓会 会場雰囲気" loading="lazy" />
           <div class="gallery-overlay"></div>
         </div>
       </div>
@@ -899,15 +869,75 @@
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 60);
     });
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((e, i) => {
-        if (e.isIntersecting) {
-          setTimeout(() => e.target.classList.add('visible'), i * 80);
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+    // ── Scroll reveal ──
+    function initReveal() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => {
+          if (e.isIntersecting) {
+            setTimeout(() => e.target.classList.add('visible'), i * 80);
+            observer.unobserve(e.target);
+          }
+        });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    }
+    initReveal();
+
+    // ── Sake list from admin/content.json ──
+    async function renderSake() {
+      const grid = document.getElementById('sake-grid');
+      if (!grid) return;
+      try {
+        const res = await fetch('admin/content.json');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const list = data.sake || [];
+        if (list.length === 0) throw new Error();
+
+        grid.innerHTML = list.map(s => `
+          <div class="sake-card fade-up">
+            <div class="sake-num">${s.vol || ''}</div>
+            <div class="sake-name">${(s.name || '').replace(/\n/g, '<br>')}</div>
+            <div class="sake-type">${s.type || ''}</div>
+          </div>
+        `).join('') + `
+          <div class="sake-card sake-more fade-up">
+            <div class="sake-more-inner">
+              <div class="sake-more-icon">＋</div>
+              <div class="sake-more-text">続々更新中...</div>
+            </div>
+          </div>`;
+
+        // re-observe new elements
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+              setTimeout(() => e.target.classList.add('visible'), i * 80);
+              observer.unobserve(e.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        grid.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+      } catch {
+        // fallback: hardcoded default
+        grid.innerHTML = `
+          <div class="sake-card fade-up">
+            <div class="sake-num">VOL. 01</div>
+            <div class="sake-name">荷札酒 黄水仙<br>純米大吟醸</div>
+            <div class="sake-type">純米大吟醸 / 加茂錦酒造</div>
+          </div>
+          <div class="sake-card sake-more fade-up">
+            <div class="sake-more-inner">
+              <div class="sake-more-icon">＋</div>
+              <div class="sake-more-text">続々更新中...</div>
+            </div>
+          </div>`;
+        initReveal();
+      }
+    }
+    renderSake();
   </script>
 </body>
 </html><\!-- test deploy -->
