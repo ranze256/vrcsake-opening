@@ -1,0 +1,46 @@
+{
+  "text": {
+    "discord_url": "https://discord.gg/erh6QqSN6X",
+    "event_freq": "毎月末（月1回）",
+    "event_time": "21:00〜",
+    "event_place": "VRChat 内特設会場"
+  },
+  "sake": [
+    {
+      "vol": "VOL. 01",
+      "name": "荷札酒 黄水仙",
+      "type": "加茂錦酒造",
+      "desc": ""
+    },
+    {
+      "vol": "VOL. 02",
+      "name": "醸し人九平次",
+      "type": "株式会社萬乗醸造",
+      "desc": ""
+    },
+    {
+      "vol": "VOL. 03",
+      "name": "射美 特別純米酒15　無濾過生原酒",
+      "type": "杉原酒造",
+      "desc": ""
+    },
+    {
+      "vol": "VOL. 04",
+      "name": "玄宰 特上",
+      "type": "末廣酒造",
+      "desc": ""
+    },
+    {
+      "vol": "VOL. 05",
+      "name": "讃岐くらうでぃ",
+      "type": "川鶴酒造",
+      "desc": ""
+    },
+    {
+      "vol": "VOL. 06",
+      "name": "長寿金亀　茶70",
+      "type": "岡村本家",
+      "desc": ""
+    }
+  ]
+}
