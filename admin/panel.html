@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VRC日本酒開栓会 管理画面</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.15);
+  --gold-brd: rgba(201,168,76,0.35);
+  --bg:  #0d0d10;
+  --bg1: #13131a;
+  --bg2: #1a1a25;
+  --bg3: #222230;
+  --t1:  #f0ede6;
+  --t2:  #a89f90;
+  --t3:  #5a5550;
+  --brd: rgba(255,255,255,0.08);
+  --brd2:rgba(255,255,255,0.14);
+  --green:#22c55e;
+  --red:  #f87171;
+  --r:    8px;
+  --font: 'Noto Sans JP',sans-serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--t1);font-family:var(--font);font-size:14px;line-height:1.6;min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;background:none;font-family:var(--font);font-size:14px;color:var(--t1)}
+input,textarea{font-family:var(--font);font-size:14px;color:var(--t1);background:var(--bg2);border:1px solid var(--brd);border-radius:var(--r);padding:10px 14px;width:100%;outline:none;transition:border-color .2s}
+input:focus,textarea:focus{border-color:var(--gold)}
+label{display:block;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--t2);margin-bottom:6px;text-transform:uppercase}
+
+/* ── Setup ── */
+#setup{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999}
+.setup-box{width:100%;max-width:440px;padding:44px;background:var(--bg1);border:1px solid var(--brd2);border-radius:14px}
+.setup-title{font-size:20px;font-weight:700;letter-spacing:.04em;margin-bottom:4px}
+.setup-title span{color:var(--gold)}
+.setup-sub{color:var(--t3);margin-bottom:28px;font-size:12px}
+.setup-step{display:flex;gap:12px;align-items:flex-start;font-size:12px;color:var(--t2);margin-bottom:10px}
+.step-num{width:20px;height:20px;border-radius:50%;background:var(--gold-dim);border:1px solid var(--gold-brd);color:var(--gold);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-num a{color:var(--gold)}
+.token-wrap{position:relative;margin:20px 0 14px}
+.token-wrap input{padding-right:44px}
+.token-toggle{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--t3);cursor:pointer;background:none;border:none;font-size:16px}
+.btn-login{width:100%;padding:13px;background:var(--gold);color:#0d0d10;border-radius:var(--r);font-weight:700;font-size:14px;letter-spacing:.04em;transition:background .2s}
+.btn-login:hover{background:#e8c97a}
+.setup-error{color:var(--red);font-size:12px;margin-top:10px;display:none}
+
+/* ── App ── */
+#app{display:none;min-height:100vh}
+.topbar{background:var(--bg1);border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:56px;position:sticky;top:0;z-index:10}
+.topbar-logo{font-size:13px;font-weight:700;letter-spacing:.08em}
+.topbar-logo span{color:var(--gold)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.save-indicator{font-size:12px;font-weight:600;color:var(--t3);display:flex;align-items:center;gap:6px;min-width:80px}
+.save-indicator.saving{color:#f59e0b}
+.save-indicator.saved{color:var(--green)}
+.save-indicator.error{color:var(--red)}
+.btn-site{padding:7px 14px;border:1px solid var(--gold-brd);border-radius:var(--r);font-size:12px;color:var(--gold);transition:all .2s}
+.btn-site:hover{background:var(--gold-dim)}
+.btn-logout{padding:7px 14px;border:1px solid var(--brd);border-radius:var(--r);font-size:12px;color:var(--t3);transition:all .2s}
+.btn-logout:hover{color:var(--t1);border-color:var(--brd2)}
+
+.main{max-width:900px;margin:0 auto;padding:36px 24px 80px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:4px}
+.section-sub{color:var(--t3);font-size:12px;margin-bottom:24px}
+
+/* ── Image grid ── */
+.img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}
+.img-slot{background:var(--bg1);border:1px solid var(--brd);border-radius:12px;overflow:hidden;transition:border-color .2s}
+.img-slot:hover{border-color:var(--brd2)}
+.img-slot-preview{width:100%;aspect-ratio:16/9;background:var(--bg2);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.img-slot-preview.logo-slot{aspect-ratio:1}
+.img-slot-preview img{width:100%;height:100%;object-fit:cover}
+.img-slot-preview .placeholder{color:var(--t3);font-size:40px;text-align:center}
+.img-slot-preview .no-img{color:var(--t3);font-size:11px;font-weight:600;letter-spacing:.08em;text-align:center;padding:16px}
+.img-slot-body{padding:14px}
+.img-slot-name{font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--t2);margin-bottom:8px;text-transform:uppercase}
+.img-slot-desc{font-size:11px;color:var(--t3);margin-bottom:12px}
+.img-upload-zone{border:1.5px dashed var(--brd2);border-radius:var(--r);padding:12px;text-align:center;cursor:pointer;transition:all .2s;position:relative}
+.img-upload-zone:hover,.img-upload-zone.dragover{border-color:var(--gold);background:var(--gold-dim)}
+.img-upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload-zone .zone-text{font-size:11px;color:var(--t3);pointer-events:none}
+.img-upload-zone .zone-text b{color:var(--t2)}
+.btn-upload{margin-top:10px;width:100%;padding:9px;background:var(--gold);color:#0d0d10;border-radius:var(--r);font-weight:700;font-size:12px;letter-spacing:.04em;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-upload:hover{background:#e8c97a}
+.btn-upload:disabled{background:var(--bg3);color:var(--t3);cursor:not-allowed}
+.file-name{font-size:11px;color:var(--gold);margin-top:6px;word-break:break-all}
+
+/* ── Text editing ── */
+.text-section{margin-top:40px}
+.field{margin-bottom:20px}
+.field label{margin-bottom:8px}
+.btn-save-text{padding:11px 28px;background:var(--gold);color:#0d0d10;border-radius:var(--r);font-weight:700;font-size:13px;letter-spacing:.04em;transition:background .2s;display:inline-flex;align-items:center;gap:8px;margin-top:4px}
+.btn-save-text:hover{background:#e8c97a}
+
+/* ── Sake cards ── */
+.sake-section{margin-top:40px}
+.sake-list{display:flex;flex-direction:column;gap:10px}
+.sake-row{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;display:grid;grid-template-columns:80px 1fr 1fr 1fr auto;gap:10px;align-items:center}
+.sake-row input{background:var(--bg2);padding:8px 12px}
+.btn-rm{width:32px;height:32px;border-radius:6px;border:1px solid var(--brd);color:var(--t3);display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s}
+.btn-rm:hover{border-color:var(--red);color:var(--red)}
+.btn-add-sake{margin-top:10px;padding:9px 20px;border:1px dashed var(--brd2);border-radius:var(--r);color:var(--t3);font-size:12px;transition:all .2s}
+.btn-add-sake:hover{border-color:var(--gold);color:var(--gold)}
+.sake-header{display:grid;grid-template-columns:80px 1fr 1fr 1fr 32px;gap:10px;padding:0 16px;margin-bottom:6px}
+.sake-header span{font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--t3);text-transform:uppercase}
+
+/* ── Toast ── */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--bg3);border:1px solid var(--brd2);border-radius:var(--r);padding:12px 24px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:all .3s;z-index:999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(34,197,94,.4);color:var(--green)}
+.toast.error{border-color:rgba(248,113,113,.4);color:var(--red)}
+
+/* ── Divider ── */
+.gold-line{height:1px;background:linear-gradient(to right,transparent,var(--gold-brd),transparent);margin:36px 0}
+</style>
+</head>
+<body>
+
+<!-- Setup screen -->
+<div id="setup">
+  <div class="setup-box">
+    <div class="setup-title">VRC日本酒開栓会<br><span>管理画面</span></div>
+    <div class="setup-sub">GitHub Personal Access Token でログインしてください</div>
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div><a href="https://github.com/settings/tokens/new?scopes=repo&description=vrcsake-admin" target="_blank" style="color:var(--gold)">GitHub でトークンを発行</a>（repo スコープ必須）</div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div>発行したトークンを貼り付けてログイン</div>
+    </div>
+    <div class="token-wrap">
+      <input type="password" id="token-input" placeholder="ghp_xxxxxxxxxxxx" onkeydown="if(event.key==='Enter')login()">
+      <button class="token-toggle" onclick="toggleVis()" type="button">👁</button>
+    </div>
+    <button class="btn-login" onclick="login()">管理画面に入る</button>
+    <div class="setup-error" id="setup-error"></div>
+  </div>
+</div>
+
+<!-- App -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-logo">VRC日本酒開栓会 <span>Admin</span></div>
+    <div class="topbar-right">
+      <span class="save-indicator" id="save-ind"></span>
+      <a href="https://vrcsake-opening.pages.dev" target="_blank" class="btn-site">サイトを見る →</a>
+      <button class="btn-logout" onclick="logout()">ログアウト</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ── Images ── -->
+    <div class="section-title">📸 画像管理</div>
+    <div class="section-sub">画像をアップロードするとGitHubにコミットされ、約30秒でサイトに反映されます</div>
+    <div class="img-grid" id="img-grid">
+      <!-- populated by JS -->
+    </div>
+
+    <div class="gold-line"></div>
+
+    <!-- ── Text ── -->
+    <div class="text-section">
+      <div class="section-title">✏️ テキスト編集</div>
+      <div class="section-sub">基本情報を編集します。変更後「保存してデプロイ」を押してください</div>
+      <div id="text-fields">
+        <!-- populated by JS -->
+      </div>
+      <button class="btn-save-text" onclick="saveText()">💾 保存してデプロイ</button>
+    </div>
+
+    <div class="gold-line"></div>
+
+    <!-- ── Sake list ── -->
+    <div class="sake-section">
+      <div class="section-title">🍶 過去のお酒</div>
+      <div class="section-sub">過去に開栓したお酒の一覧を編集します</div>
+      <div class="sake-header">
+        <span>Vol.</span>
+        <span>銘柄名</span>
+        <span>種類 / 産地</span>
+        <span>説明</span>
+        <span></span>
+      </div>
+      <div class="sake-list" id="sake-list"></div>
+      <button class="btn-add-sake" onclick="addSake()">＋ お酒を追加</button>
+      <br><br>
+      <button class="btn-save-text" onclick="saveSake()">💾 お酒リストを保存</button>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const REPO = 'ranze256/vrcsake-opening';
+const API  = 'https://api.github.com';
+
+// Image slots definition
+const IMG_SLOTS = [
+  { key:'logo',     file:'logo.svg',        label:'ロゴ',          desc:'ナビバー・ファビコン用 SVG',    accept:'image/svg+xml,image/*', logo:true },
+  { key:'gal1',     file:'gallery-01.jpg',  label:'ギャラリー 1',  desc:'参加者集合写真',                accept:'image/*' },
+  { key:'gal2',     file:'gallery-02.jpg',  label:'ギャラリー 2',  desc:'イベントの様子',                accept:'image/*' },
+  { key:'gal3',     file:'gallery-03.jpg',  label:'ギャラリー 3',  desc:'会場の様子',                    accept:'image/*' },
+  { key:'gal4',     file:'gallery-04.jpg',  label:'ギャラリー 4',  desc:'お酒の紹介',                    accept:'image/*' },
+  { key:'gal5',     file:'gallery-05.jpg',  label:'ギャラリー 5',  desc:'会場雰囲気',                    accept:'image/*' },
+];
+
+// Content file path
+const CONTENT_PATH = 'admin/content.json';
+
+let token = localStorage.getItem('vrcsake_gh_token') || '';
+let pendingFiles = {};   // key -> File
+let imgShas = {};        // file -> sha (for update)
+let contentSha = '';
+let contentData = {};
+let sakeData = [];
+
+// ── Auth ──
+function toggleVis() {
+  const inp = document.getElementById('token-input');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+async function login() {
+  const t = document.getElementById('token-input').value.trim();
+  if (!t) { showErr('トークンを入力してください'); return; }
+  const btn = document.querySelector('.btn-login');
+  btn.textContent = '確認中...';
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${API}/repos/${REPO}`, {
+      headers: { Authorization: `token ${t}` }
+    });
+    if (res.status === 401) throw new Error('トークンが無効です');
+    if (res.status === 403) throw new Error('権限がありません（repo スコープが必要です）');
+    if (res.status === 404) throw new Error(`リポジトリ "${REPO}" が見つかりません`);
+    if (!res.ok) throw new Error(`GitHub API エラー (${res.status})`);
+    localStorage.setItem('vrcsake_gh_token', t);
+    token = t;
+    bootApp();
+  } catch(e) {
+    showErr(e.message || 'ネットワークエラー');
+    btn.textContent = '管理画面に入る';
+    btn.disabled = false;
+  }
+}
+
+function showErr(msg) {
+  const el = document.getElementById('setup-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+function logout() {
+  localStorage.removeItem('vrcsake_gh_token');
+  location.reload();
+}
+
+// ── Boot ──
+async function bootApp() {
+  document.getElementById('setup').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  await Promise.all([loadImgShas(), loadContent()]);
+  renderImgGrid();
+  renderTextFields();
+  renderSakeList();
+}
+
+// ── Load image SHAs (to know if files exist) ──
+async function loadImgShas() {
+  await Promise.all(IMG_SLOTS.map(async slot => {
+    const data = await ghGet(slot.file);
+    if (data) imgShas[slot.file] = data.sha;
+  }));
+}
+
+// ── Load content.json ──
+async function loadContent() {
+  const data = await ghGet(CONTENT_PATH);
+  if (data) {
+    contentSha = data.sha;
+    try {
+      const parsed = JSON.parse(b64(data.content));
+      contentData = parsed.text || {};
+      sakeData = parsed.sake || defaultSake();
+    } catch { contentData = {}; sakeData = defaultSake(); }
+  } else {
+    contentData = defaultText();
+    sakeData = defaultSake();
+  }
+}
+
+function defaultText() {
+  return {
+    discord_url: 'https://discord.gg/erh6QqSN6X',
+    event_freq: '毎月末（月1回）',
+    event_time: '21:00〜',
+    event_place: 'VRChat 内特設会場',
+  };
+}
+
+function defaultSake() {
+  return [
+    { vol:'VOL. 01', name:'', type:'', desc:'' },
+  ];
+}
+
+// ── Render image grid ──
+function renderImgGrid() {
+  const grid = document.getElementById('img-grid');
+  grid.innerHTML = IMG_SLOTS.map(slot => {
+    const exists = !!imgShas[slot.file];
+    const rawUrl = `https://raw.githubusercontent.com/${REPO}/master/${slot.file}?t=${Date.now()}`;
+    return `
+    <div class="img-slot" id="slot-${slot.key}">
+      <div class="img-slot-preview${slot.logo?' logo-slot':''}" id="preview-${slot.key}">
+        ${exists
+          ? `<img src="${rawUrl}" alt="${slot.label}" onerror="this.parentElement.innerHTML='<div class=\\"no-img\\">読み込み失敗</div>'">`
+          : `<div class="no-img">未設定</div>`}
+      </div>
+      <div class="img-slot-body">
+        <div class="img-slot-name">${slot.label}</div>
+        <div class="img-slot-desc">${slot.desc}</div>
+        <div class="img-upload-zone" id="zone-${slot.key}"
+             ondragover="event.preventDefault();this.classList.add('dragover')"
+             ondragleave="this.classList.remove('dragover')"
+             ondrop="handleDrop('${slot.key}',event)">
+          <input type="file" accept="${slot.accept}" onchange="handleFile('${slot.key}',this)">
+          <div class="zone-text"><b>クリックまたはドラッグ</b>で選択</div>
+        </div>
+        <div class="file-name" id="fname-${slot.key}"></div>
+        <button class="btn-upload" id="btn-${slot.key}" onclick="uploadImg('${slot.key}')" disabled>
+          アップロード
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Image file handling ──
+function handleDrop(key, e) {
+  e.preventDefault();
+  document.getElementById(`zone-${key}`).classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) setFile(key, file);
+}
+
+function handleFile(key, input) {
+  const file = input.files[0];
+  if (file) setFile(key, file);
+}
+
+function setFile(key, file) {
+  pendingFiles[key] = file;
+  document.getElementById(`fname-${key}`).textContent = file.name;
+  document.getElementById(`btn-${key}`).disabled = false;
+
+  // Show local preview
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById(`preview-${key}`);
+    prev.innerHTML = `<img src="${e.target.result}" alt="">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function uploadImg(key) {
+  const file = pendingFiles[key];
+  if (!file) return;
+
+  const slot = IMG_SLOTS.find(s => s.key === key);
+  const btn = document.getElementById(`btn-${key}`);
+  btn.disabled = true;
+  btn.textContent = 'アップロード中...';
+  setSave('saving', '保存中...');
+
+  try {
+    const b64content = await fileToBase64(file);
+    const sha = imgShas[slot.file];
+    const body = {
+      message: `Update ${slot.file}`,
+      content: b64content,
+    };
+    if (sha) body.sha = sha;
+
+    const res = await fetch(`${API}/repos/${REPO}/contents/${slot.file}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    imgShas[slot.file] = data.content.sha;
+    delete pendingFiles[key];
+    document.getElementById(`fname-${key}`).textContent = '';
+    setSave('saved', '保存済み ✓');
+    toast(`${slot.label} をアップロードしました`, 'success');
+  } catch(e) {
+    setSave('error', 'エラー');
+    toast(`アップロード失敗: ${e.message}`, 'error');
+  }
+  btn.textContent = 'アップロード';
+  btn.disabled = !pendingFiles[key];
+}
+
+// ── Text fields ──
+const TEXT_FIELDS = [
+  { id:'discord_url',   label:'Discord サーバー URL',  placeholder:'https://discord.gg/...' },
+  { id:'event_freq',    label:'開催頻度',               placeholder:'毎月末（月1回）' },
+  { id:'event_time',    label:'開始時間',               placeholder:'21:00〜' },
+  { id:'event_place',   label:'開催場所',               placeholder:'VRChat 内特設会場' },
+];
+
+function renderTextFields() {
+  document.getElementById('text-fields').innerHTML = TEXT_FIELDS.map(f => `
+    <div class="field">
+      <label>${f.label}</label>
+      <input id="tf-${f.id}" value="${(contentData[f.id]||'').replace(/"/g,'&quot;')}" placeholder="${f.placeholder}">
+    </div>
+  `).join('');
+}
+
+async function saveText() {
+  setSave('saving','保存中...');
+  TEXT_FIELDS.forEach(f => {
+    contentData[f.id] = document.getElementById(`tf-${f.id}`).value.trim();
+  });
+  await saveContent('テキストを更新');
+}
+
+// ── Sake list ──
+function renderSakeList() {
+  document.getElementById('sake-list').innerHTML = sakeData.map((s, i) => `
+    <div class="sake-row" data-i="${i}">
+      <input value="${esc(s.vol)}" id="sv-${i}" placeholder="VOL. 01">
+      <input value="${esc(s.name)}" id="sn-${i}" placeholder="銘柄名">
+      <input value="${esc(s.type)}" id="st-${i}" placeholder="種類 / 産地">
+      <input value="${esc(s.desc)}" id="sd-${i}" placeholder="備考">
+      <button class="btn-rm" onclick="removeSake(${i})">×</button>
+    </div>
+  `).join('');
+}
+
+function addSake() {
+  syncSakeFromDom();
+  sakeData.push({ vol:`VOL. ${String(sakeData.length+1).padStart(2,'0')}`, name:'', type:'', desc:'' });
+  renderSakeList();
+}
+
+function removeSake(i) {
+  syncSakeFromDom();
+  sakeData.splice(i, 1);
+  renderSakeList();
+}
+
+function syncSakeFromDom() {
+  sakeData = sakeData.map((s, i) => ({
+    vol:  document.getElementById(`sv-${i}`)?.value.trim() || s.vol,
+    name: document.getElementById(`sn-${i}`)?.value.trim() || s.name,
+    type: document.getElementById(`st-${i}`)?.value.trim() || s.type,
+    desc: document.getElementById(`sd-${i}`)?.value.trim() || s.desc,
+  }));
+}
+
+async function saveSake() {
+  syncSakeFromDom();
+  setSave('saving','保存中...');
+  await saveContent('お酒リストを更新');
+}
+
+async function saveContent(message) {
+  try {
+    const payload = { text: contentData, sake: sakeData };
+    const body = {
+      message,
+      content: btoa(unescape(encodeURIComponent(JSON.stringify(payload, null, 2)))),
+    };
+    if (contentSha) body.sha = contentSha;
+
+    const res = await fetch(`${API}/repos/${REPO}/contents/${CONTENT_PATH}`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `token ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    contentSha = data.content.sha;
+    setSave('saved', '保存済み ✓');
+    toast(`${message}しました`, 'success');
+  } catch(e) {
+    setSave('error', 'エラー');
+    toast(`保存失敗: ${e.message}`, 'error');
+  }
+}
+
+// ── Helpers ──
+async function ghGet(path) {
+  const res = await fetch(`${API}/repos/${REPO}/contents/${path}`, {
+    headers: { Authorization: `token ${token}` }
+  });
+  if (!res.ok) return null;
+  return res.json();
+}
+
+function b64(str) {
+  const binary = atob(str.replace(/\n/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder('utf-8').decode(bytes);
+}
+
+function fileToBase64(file) {
+  return new Promise(resolve => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result.split(',')[1]);
+    r.readAsDataURL(file);
+  });
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;'); }
+
+function setSave(type, msg) {
+  const el = document.getElementById('save-ind');
+  el.className = 'save-indicator ' + type;
+  el.textContent = msg;
+  if (type === 'saved') setTimeout(() => { el.textContent=''; el.className='save-indicator'; }, 3000);
+}
+
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ── Init ──
+if (token) bootApp();
+</script>
+</body>
+</html>
