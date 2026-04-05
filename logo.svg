@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" fill="none">
+  <title>Tokkuri Icon</title>
+  <desc>Standard traditional sake bottle icon</desc>
+
+  <g stroke="#C9A84C" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M110 34h36"/>
+    <path d="M116 34v34c0 10-7 17-15 23c-16 11-28 29-28 57c0 44 25 74 55 74s55-30 55-74c0-28-12-46-28-57c-8-6-15-13-15-23V34"/>
+    <path d="M96 126c10 7 21 10 32 10s22-3 32-10"/>
+  </g>
+</svg>
