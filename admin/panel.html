@@ -512,8 +512,20 @@ async function ghGet(path) {
   const res = await fetch(`${API}/repos/${REPO}/contents/${path}`, {
     headers: { Authorization: `token ${token}` }
   });
+  if (res.status === 401 || res.status === 403) {
+    forceRelogin('GitHubトークンが期限切れか無効です。新しいトークンを発行して入力してください。');
+    return null;
+  }
   if (!res.ok) return null;
   return res.json();
+}
+
+function forceRelogin(msg) {
+  localStorage.removeItem('vrcsake_gh_token');
+  token = '';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('setup').style.display = 'flex';
+  showErr(msg);
 }
 
 function b64(str) {
